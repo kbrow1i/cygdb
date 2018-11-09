@@ -1,0 +1,33 @@
+--- origsrc/db-5.3.28/lang/sql/generated/sqlite3.c	2015-02-10 11:21:50.906974800 +0100
++++ src/db-5.3.28/lang/sql/generated/sqlite3.c	2015-02-10 11:32:42.934268600 +0100
+@@ -8439,7 +8439,7 @@ SQLITE_PRIVATE void sqlite3PcacheStats(i
+ #if !defined(SQLITE_OS_UNIX) && !defined(SQLITE_OS_OTHER)
+ # define SQLITE_OS_OTHER 0
+ # ifndef SQLITE_OS_WIN
+-#   if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
++#   if defined(_WIN32) || defined(WIN32) || defined(__MINGW32__) || defined(__BORLANDC__)
+ #     define SQLITE_OS_WIN 1
+ #     define SQLITE_OS_UNIX 0
+ #     define SQLITE_OS_OS2 0
+--- origsrc/db-5.3.28/lang/sql/sqlite/ext/async/sqlite3async.c	2013-09-09 17:35:05.000000000 +0200
++++ src/db-5.3.28/lang/sql/sqlite/ext/async/sqlite3async.c	2015-02-10 11:31:48.622162200 +0100
+@@ -245,7 +245,7 @@ static void async_os_shutdown(void);
+ /*************************************************************************
+ ** Start of OS specific code.
+ */
+-#if SQLITE_OS_WIN || defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
++#if SQLITE_OS_WIN || defined(_WIN32) || defined(WIN32) || defined(__MINGW32__) || defined(__BORLANDC__)
+ 
+ #include <windows.h>
+ 
+--- origsrc/db-5.3.28/lang/sql/sqlite/src/os.h	2013-09-09 17:35:06.000000000 +0200
++++ src/db-5.3.28/lang/sql/sqlite/src/os.h	2015-02-10 11:30:24.354342300 +0100
+@@ -42,7 +42,7 @@
+ #if !defined(SQLITE_OS_UNIX) && !defined(SQLITE_OS_OTHER)
+ # define SQLITE_OS_OTHER 0
+ # ifndef SQLITE_OS_WIN
+-#   if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
++#   if defined(_WIN32) || defined(WIN32) || defined(__MINGW32__) || defined(__BORLANDC__)
+ #     define SQLITE_OS_WIN 1
+ #     define SQLITE_OS_UNIX 0
+ #     define SQLITE_OS_OS2 0

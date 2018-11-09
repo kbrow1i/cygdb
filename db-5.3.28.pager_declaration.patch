@@ -1,0 +1,12 @@
+--- origsrc/db-5.3.28/lang/sql/adapter/pager.h	2013-09-09 11:35:04.000000000 -0400
++++ src/db-5.3.28/lang/sql/adapter/pager.h	2018-11-08 21:00:55.672133400 -0500
+@@ -47,6 +47,9 @@ typedef db_pgno_t Pgno;
+   #define SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT 2 * 1024 * 1024
+ #endif
+ 
++void sqlite3PagerUnref(DbPage *pPg);
++void *sqlite3PagerGetData(DbPage *pPg);
++int sqlite3PagerGet(Pager *pPager, Pgno pgno, DbPage **ppPage);
+ int sqlite3PagerExclusiveLock(Pager *pPager);
+ sqlite3_file *sqlite3PagerFile(Pager*);
+ const char *sqlite3PagerFilename(Pager *pPager);

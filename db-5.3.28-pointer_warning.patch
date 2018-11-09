@@ -1,0 +1,31 @@
+--- origsrc/db-5.3.28/lang/sql/sqlite/src/test_malloc.c	2013-09-09 11:35:06.000000000 -0400
++++ src/db-5.3.28/lang/sql/sqlite/src/test_malloc.c	2018-11-09 12:00:48.533374900 -0500
+@@ -1193,7 +1193,7 @@ static int test_dump_memsys3(
+     return TCL_ERROR;
+   }
+ 
+-  switch( (int)clientData ){
++  switch( (intptr_t)clientData ){
+     case 3: {
+ #ifdef SQLITE_ENABLE_MEMSYS3
+       extern void sqlite3Memsys3Dump(const char*);
+@@ -1396,7 +1396,7 @@ int Sqlitetest_malloc_Init(Tcl_Interp *i
+   static struct {
+      char *zName;
+      Tcl_ObjCmdProc *xProc;
+-     int clientData;
++     intptr_t clientData;
+   } aObjCmd[] = {
+      { "sqlite3_malloc",             test_malloc                   ,0 },
+      { "sqlite3_realloc",            test_realloc                  ,0 },
+--- origsrc/db-5.3.28/lang/sql/sqlite/src/test_thread.c	2013-09-09 11:35:06.000000000 -0400
++++ src/db-5.3.28/lang/sql/sqlite/src/test_thread.c	2018-11-09 12:02:49.507501300 -0500
+@@ -319,7 +319,7 @@ static int sqlthread_id(
+   Tcl_Obj *CONST objv[]
+ ){
+   Tcl_ThreadId id = Tcl_GetCurrentThread();
+-  Tcl_SetObjResult(interp, Tcl_NewIntObj((int)id));
++  Tcl_SetObjResult(interp, Tcl_NewIntObj((intptr_t)id));
+   UNUSED_PARAMETER(clientData);
+   UNUSED_PARAMETER(objc);
+   UNUSED_PARAMETER(objv);

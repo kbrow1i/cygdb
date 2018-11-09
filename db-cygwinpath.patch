@@ -1,0 +1,22 @@
+--- origsrc/db-5.3.28/lang/sql/generated/sqlite3.c	2013-09-09 17:35:05.000000000 +0200
++++ src/db-5.3.28/lang/sql/generated/sqlite3.c	2015-02-10 09:10:42.342918700 +0100
+@@ -33202,7 +33202,7 @@ static int winFullPathname(
+ #if defined(__CYGWIN__)
+   SimulateIOError( return SQLITE_ERROR );
+   UNUSED_PARAMETER(nFull);
+-  cygwin_conv_to_full_win32_path(zRelative, zFull);
++  cygwin_create_path(zRelative, zFull);
+   return SQLITE_OK;
+ #endif
+ 
+--- origsrc/db-5.3.28/lang/sql/sqlite/src/os_win.c	2013-09-09 17:35:06.000000000 +0200
++++ src/db-5.3.28/lang/sql/sqlite/src/os_win.c	2015-02-10 09:11:10.958555400 +0100
+@@ -2395,7 +2395,7 @@ static int winFullPathname(
+ #if defined(__CYGWIN__)
+   SimulateIOError( return SQLITE_ERROR );
+   UNUSED_PARAMETER(nFull);
+-  cygwin_conv_to_full_win32_path(zRelative, zFull);
++  cygwin_create_path(zRelative, zFull);
+   return SQLITE_OK;
+ #endif
+ 

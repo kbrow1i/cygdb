@@ -1,0 +1,11 @@
+--- origsrc/db-5.3.28/lang/sql/sqlite/Makefile.in	2013-09-09 17:35:05.000000000 +0200
++++ src/db-5.3.28/lang/sql/sqlite/Makefile.in	2015-02-10 12:11:58.696010500 +0100
+@@ -487,7 +487,7 @@ sqlite3.pc: $(TOP)/sqlite3.pc.in
+ 
+ libsqlite3.la:	$(LIBOBJ)
+ 	$(LTLINK) -o $@ $(LIBOBJ) $(TLIBS) \
+-		${ALLOWRELEASE} -rpath "$(libdir)" -version-info "8:6:8"
++		${ALLOWRELEASE} -rpath "$(libdir)" -version-info "8:6:8" -no-undefined
+ 
+ libtclsqlite3.la:	tclsqlite.lo libsqlite3.la
+ 	$(LTLINK) -o $@ tclsqlite.lo \

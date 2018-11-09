@@ -1,0 +1,109 @@
+inherit tcl
+
+NAME="db"
+VERSION=5.3.28
+RELEASE=2
+CATEGORY="Database"
+SUMMARY="Oracle Berkeley DB"
+DESCRIPTION="Oracle Berkeley DB is the industry-leading open source, embeddable
+database engine that provides developers with fast, reliable, local persistence
+with zero administration. Oracle Berkeley DB is a library that links directly
+into your application. Your application makes simple function calls, rather
+than sending messages to a remote server, eliminating the performance penalty
+of client-server architectures."
+HOMEPAGE="http://www.oracle.com/technology/products/berkeley-db"
+SRC_URI="http://download.oracle.com/berkeley-db/db-${VERSION%.${PV[4]}}.tar.gz"
+SRC_DIR="db-${VERSION%.${PV[4]}}"
+PATCH_URI+="
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/007-mt19937db.c_license.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/db-5.3.21-memp_stat-upstream-fix.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/db-5.3.21-mutex_leak.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/db-5.3.28-lemon_hash.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/db-5.3.28-cwd-db_config.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/libdb.git/plain/libdb-5.3.21-region-size-check.patch
+	db-configureac.patch
+	db-CYGWIN.patch
+	db-cygwinpath.patch
+	db-noundefined.patch
+	5.3-java.patch
+	5.3-tcl.patch
+	5.3-vpath.patch
+"
+
+PKG_NAMES="db libdb5.3 libdb-devel db-doc tcl-db" # java-db
+db_CONTENTS="--exclude=html usr/bin/db*.exe usr/share/doc/"
+libdb5_3_CONTENTS="--exclude=*java* usr/bin/*-5.3.dll"
+libdb_devel_CONTENTS="usr/include/ usr/lib/lib*"
+db_doc_CONTENTS="usr/share/doc/${NAME}/html/"
+java_db_CONTENTS="usr/bin/cygdb_java-*.dll ${JAVA_DIR#/}/db.jar"
+tcl_db_CONTENTS="${TCL_LIBDIR#/}/"
+
+DIFF_EXCLUDES="config.* configure db.jar install-sh ltmain.sh libtool.m4 lt*.m4"
+
+src_compile() {
+	local slot=${PV[1]}.${PV[2]}
+
+	check_prog_req libtoolize libtool
+
+	cd ${S}/lang/sql/sqlite
+	cygautoreconf
+
+	cd ${S}/dist
+
+	ac_macrodir=aclocal libtoolize --copy --force --install || error "berkdb: libtoolize failed"
+	./s_config || error "s_config failed"
+
+	cd ${B}
+	CFLAGS="$CFLAGS -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_DISABLE_DIRSYNC=1 -DSQLITE_ENABLE_FTS3=3 -DSQLITE_ENABLE_RTREE=1 -DSQLITE_SECURE_DELETE=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1"
+	CYGCONF_SOURCE=${S}/dist \
+	cygconf \
+		--with-mutex=${ARCH_i686+x86}${ARCH_x86_64+x86_64}/gcc-assembly \
+		--enable-compat185 \
+		--enable-cxx \
+		--enable-dynamic \
+		--enable-sql \
+		--disable-java \
+		--enable-tcl \
+		--enable-test
+
+	cygmake libdb-${slot}.la
+	cygmake C_OBJS="libdb-${slot}.la"
+}
+
+src_test() {
+	cd ${B}
+	PATH=${B}/.libs:$PATH ${TCLSH} <<-_EOF
+	load [file join ${B}/.libs cygdb_tcl-${PV[1]}.${PV[2]}.dll]
+	source ${S}/test/tcl/test.tcl
+	log001
+	test001 btree
+	run_test test001
+	_EOF
+# Use this target for running standard tests (takes very long)
+# run_std
+# Use this target for running ALL tests (takes even longer)
+# run_all
+}
+
+src_install() {
+	local slot=${PV[1]}.${PV[2]}
+
+	cd ${B}
+	cyginstall docdir=/usr/share/doc/${NAME}/html emode=755 fmode=644
+
+	# replace unslotted libs with symlinks
+	rm -f ${D}/usr/lib/libdb{_cxx,_sql,}.a
+	dosym libdb-${slot}.dll.a /usr/lib/libdb.dll.a
+	dosym libdb_cxx-${slot}.dll.a /usr/lib/libdb_cxx.dll.a
+	dosym libdb_sql-${slot}.dll.a /usr/lib/libdb_sql.dll.a
+
+	# these implibs aren't needed
+	rm -f ${D}/usr/lib/libdb_java-${slot}.*
+	rm -f ${D}/usr/lib/libdb_tcl-${slot}.*
+
+	# relocate and install Tcl module
+	dodir ${TCL_LIBDIR}/db${slot}
+	mv ${D}/usr/lib/cygdb_tcl-${slot}.dll ${D}${TCL_LIBDIR}/db${slot}/
+	echo pkg_mkIndex ${D}${TCL_LIBDIR}/db${slot} cygdb_tcl-${slot}.dll | PATH=${D}/usr/bin:$PATH ${TCLSH}
+	sed -i -e "s#${D}##g" ${D}${TCL_LIBDIR}/db${slot}/pkgIndex.tcl
+}
